@@ -25,6 +25,15 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Quiz not found' }, { status: 404 });
         }
 
+        await prisma.quiz.update({
+            where: {
+                id,
+            },
+            data: {
+                tryCount: { increment: 1 }
+            }
+        })
+
         const options = await prisma.option.findMany({
             where: {
                 quizId: id,
