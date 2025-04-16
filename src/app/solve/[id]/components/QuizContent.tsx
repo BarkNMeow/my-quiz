@@ -1,6 +1,7 @@
 'use client'
 
 import RoundButton from "@/components/RoundButton"
+import { correctColorScheme, wrongColorScheme } from "@/constant"
 import { arraysEqual } from "@/lib/arrayUtil"
 import { ArrowBigRight, Check, Shuffle, X } from "lucide-react"
 import Link from "next/link"
@@ -11,9 +12,6 @@ enum CorrectState {
     CORRECT,
     INCORRECT
 }
-
-const wrongColorScheme = 'border-red-800 bg-red-100 text-red-800 dark:border-red-950 dark:bg-red-300 dark:text-red-950'
-const correctColorScheme = 'border-green-800 bg-green-100 text-green-800 dark:border-green-950 dark:bg-green-300 dark:text-green-950'
 
 export default function QuizContent(props: {
     quizId: number,

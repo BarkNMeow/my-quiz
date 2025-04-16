@@ -18,6 +18,8 @@ export async function GET(request: Request, context: { params: { id: string } })
                 id: true,
                 question: true,
                 supplementary: true,
+                tryCount: true,
+                correctCount: true,
                 options: {
                     select: {
                         id: true,

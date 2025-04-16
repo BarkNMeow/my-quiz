@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient, Quiz } from "@/prisma"
+import { shuffleArray } from "@/lib/arrayUtil";
 
 const prisma = new PrismaClient()
 
@@ -11,15 +12,14 @@ export async function GET(request: Request, context: { params: { id: string } })
         if (isNaN(_id)) {
             return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
         }
-
-        const randomQuiz = await prisma.$queryRaw<Quiz[]>`
-            SELECT * FROM "Quiz"
-            JOIN (SELECT COUNT(*) AS cnt FROM "Quiz") as Cnt
-            ON true
-            WHERE "correctCount" = 0
-            ORDER BY 1 / (1 + EXP(ABS(id - ${_id}) / (Cnt.cnt * 2))) * random() ASC
-            LIMIT 1;`
-        const randomQuizId = randomQuiz ? randomQuiz[0].id : -1
+        // (SELECT CASE WHEN "tryCount" = 0 THEN 0 ELSE "correctCount" / "tryCount" END) * (1 + EXP(-ABS(id - ${_id}) * 2 / Cnt.cnt)) * random()
+        // const randomQuiz = await prisma.$queryRaw<Quiz[]>`SELECT id FROM "Quiz" TABLESAMPLE SYSTEM_ROWS(10);`
+        const randomQuiz = await prisma.$queryRaw<Quiz[]>`SELECT id FROM "Quiz" WHERE "correctCount" = 1 AND id != ${_id} ORDER BY random() LIMIT 10`
+        let randomQuizId = -1
+        if (randomQuiz) {
+            const filteredRandomQuizId = randomQuiz.filter(v => (v.id != _id)).map(v => v.id)
+            randomQuizId = shuffleArray(filteredRandomQuizId)[0]
+        }
 
         const nextQuiz = await prisma.quiz.findFirst({
             select: {
